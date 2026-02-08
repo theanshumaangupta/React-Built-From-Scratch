@@ -1,0 +1,1 @@
+let content0 = document.createElement('div');content0.innerText='hello';document.querySelector("#root").appendChild(content0);let content1 = document.createElement('button');content1.innerText='clickMe';document.querySelector("#root").appendChild(content1);
