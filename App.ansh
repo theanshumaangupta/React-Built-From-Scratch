@@ -1,4 +1,4 @@
-function render(){
-    let a = 56;
-    return <h1>{a}</h1>
+component App {
+  view:
+    <h1>Hello</h1>
 }

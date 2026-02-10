@@ -1,29 +1,89 @@
-import fs from "fs/promises";
-function createTag(uniqueIndex, tagname, content) {
-    return(`let content${uniqueIndex} = document.createElement('${tagname}');\ncontent${uniqueIndex}.innerText='${content}';\ndocument.querySelector("#root").appendChild(content${uniqueIndex});\n`)
+import { Children } from "react"
+
+function App() {
+  return (
+    <main>
+      <div>
+        Hello
+      </div>
+      <div>
+        Hello2
+      </div>
+    </main>
+  )
 }
-const data = await fs.readFile("App.ansh", "utf-8");
-let arrayLines = (data.split("\r\n"));
-for (let index = 0; index < arrayLines.length; index++) {
-    const line = arrayLines[index];
-    let splitLine = line.split(" ")
-    // let component = document.createElement(splitLine[0]).innerText = splitLine[1]
-    fs.appendFile("script.js", createTag(index, splitLine[0], splitLine[1]) )
+// myBabel (eq to babel) convert upper code into ---
+(main, {},
+  (div, {}, "Hello")
+    (div, {}, "Hello")
+)
+
+
+
+
+
+
+// createVdom funcn(eq to React.createElement) Convert upper To AppObject(vdom)
+function createVdom(type, props, ...children) {
+  function createText(text) {
+    return {
+      type: "Text",
+      props: {
+        nodeValue: text,
+        children: [],
+      }
+    }
+  }
+  children.map(e => {
+    e = typeof (e) == "string" ? createText(e) : createVdom(e)
+  })
+
+  if (typeof (children) == "string") {
+    return createText(children)
+  }
+  else {
+    children.forEach(e => {
+      createVdom()
+    })
+  }
+
+  // CreateVdom will return
+  returnTypeOfCreatevdom(
+    {
+      type: type,
+      props: {
+        ...props,
+        children,
+      }
+    }
+  )
 }
 
-<input className="itsinput" placeholder="somehting">fasdfd</input>
-{
-    tag: "input",
-    attributes: {
-        className: 
-        placeholder: 
-    },
-    content: [
-        {tag:"sad", content: [...]},
-        {tag:"das", ...arrayLines.}
+
+const AppObject = {
+  type: "main",
+  propse: {
+    children: [
+      {
+        type: "div",
+        props: {
+          children: [
+            "Hello"
+          ]
+        }
+      }, {
+
+        type: "div",
+        props: {
+          children: [
+            "Hello2"
+          ]
+
+        }
+      }
     ]
+  }
 }
 
-{
-    tag,attributes, content
-}
+// createRDom(eq to React.render) function will AppObject (vdom) to realdom 
+
