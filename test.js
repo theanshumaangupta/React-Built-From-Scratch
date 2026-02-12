@@ -8,19 +8,28 @@ function createText(text) {
     }
 }
 
-function f({ type, props, children }) {
-    childArray.forEach(child => {
-        
+function createElement({ type, props, children }) {
+    
+    let newChildArray = children.map(child => {
+        if (typeof (child) == "string") {
+            return createText(child)
+        }else{
+            return createElement(child)
+        }
     });
-    if (typeof (child) == "string") {
-
+    return  {
+        type: type,
+        props: {
+            props: props,
+            children : newChildArray
+        }
     }
 
 }
-f({
+console.log(createElement({
     type: "main",
     props: {},
-    child: [{ type: "div", props: {}, children: "Hello" }, { type: "div", props: {}, children: "Hello" } ],
-})
+    children: [{ type: "div", props: {}, children: ["Hello"] }, { type: "div", props: {}, children: ["Hello"] } ],
+}))
 
-f({ type: "div", props: {}, children: "Hello" })
+console.log(createElement({ type: "div", props: {}, children: ["Hello"] }));

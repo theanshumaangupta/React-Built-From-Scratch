@@ -15,7 +15,7 @@ function App() {
 // myBabel (eq to babel) convert upper code into ---
 (main, {},
   (div, {}, "Hello")
-    (div, {}, "Hello")
+  (div, {}, "Hello")
 )
 
 

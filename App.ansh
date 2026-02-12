@@ -1,4 +1,0 @@
-component App {
-  view:
-    <h1>Hello</h1>
-}

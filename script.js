@@ -1,10 +1,34 @@
-let content0 = document.createElement('div');
-content0.innerText='hello';
-document.querySelector("#root").appendChild(content0);
-let content1 = document.createElement('button');
-content1.innerText='clickMe';
-document.querySelector("#root").appendChild(content1);
-let a = document.createElement('div');
-a.innerText = "loo"
-console.log(a);
-document.querySelector("#root").appendChild(<div>Hello</div>);
+
+let a = function App() {
+    return ({
+  "type": "main",
+  "props": {
+    "children": {
+      "type": "div",
+      "props": {
+        "children": [
+          {
+            "type": "div",
+            "props": {
+              "children": "Hii-1"
+            }
+          },
+          {
+            "type": "div",
+            "props": {
+              "children": "Hii-2"
+            }
+          },
+          {
+            "type": "text",
+            "props": {
+              "children": "jii"
+            }
+          }
+        ]
+      }
+    }
+  }
+})
+}
+
