@@ -1,8 +1,8 @@
 import fs from "fs"
 
-const code = fs.readFileSync("App.jsx", "utf-8")
+const code = fs.readFileSync("App.ansh", "utf-8")
 
-// extract JSX inside return(...)
+// extract JSX inside return(...) with detail due to ()
 const jsx = code.match(/return\s*\(([\s\S]*?)\)/)[1]
 
 function parseJSX(input) {
@@ -12,6 +12,12 @@ function parseJSX(input) {
         while (/\s/.test(input[i])) i++
     }
 
+    function parseText() {
+        let start = i
+        while (i < input.length && input[i] !== "<") i++
+        return input.slice(start, i).trim()
+    }
+
     function parseNode() {
         skipWs()
 
@@ -19,15 +25,32 @@ function parseJSX(input) {
 
         i++ // <
         let tag = ""
-
+        let wholeTag = ""
+        skipWs()
         while (/[a-z]/i.test(input[i])) {
             tag += input[i++]
         }
 
-        while (input[i] !== ">") i++
+        while (input[i] !== ">") {
+            wholeTag += input[i]
+            i++
+        }
         i++ // >
-
         const children = []
+        let attrib = {}
+        let extractAttrib = wholeTag.match(/\b[a-zA-Z]+="[^"]*"/g)
+        let extractStyle = wholeTag.match(/style=\{(\{[^}]*\})\}/)?.[1]
+        if (extractStyle) {
+            attrib["style"] = JSON.parse(extractStyle)
+        }
+        // 
+        extractAttrib && extractAttrib.forEach((a) => {
+            const prop = (a).split("=");
+            if (prop.length == 2) {
+                // "theid" -> theid
+                attrib[prop[0]] = prop[1].match(/"([^"]+)"/)?.[1]
+            }
+        })
 
         while (!input.startsWith(`</${tag}>`, i)) {
             skipWs()
@@ -45,15 +68,10 @@ function parseJSX(input) {
         return {
             type: tag,
             props: {
-                children: children.length === 1 ? children[0] : children
+                ...attrib,
+                children
             }
         }
-    }
-
-    function parseText() {
-        let start = i
-        while (i < input.length && input[i] !== "<") i++
-        return input.slice(start, i).trim()
     }
 
     return parseNode()
@@ -61,9 +79,42 @@ function parseJSX(input) {
 
 const tree = parseJSX(jsx)
 
-const output = code.replace(
-    /return\s*\([\s\S]*?\)/,
-    "return (" + JSON.stringify(tree, null, 2) + ")"
-)
+let myDom = JSON.stringify(tree, null, 2)
+
+let output = `
+    let vDom = ${myDom}
+    function createText(text) {
+    let textDom = document.createTextNode(text)
+    return textDom
+    }
+    function createDom(givenObject) {
+    if (typeof (givenObject) == "string") {
+        return createText(givenObject)
+    }
+    else {
+        let el = document.createElement(givenObject.type)
+        Object.entries(givenObject.props).forEach(([attrib, value]) => {
+        // givenObject.props = {children : [], style:{}, id:""}
+        if (attrib != 'children') {
+            if (attrib == "style") {
+            // value = {"color": "red"}
+            Object.entries(value).forEach(([styleKey, styleValue]) => {
+                el.style[styleKey] = styleValue
+            })
+            }
+            else {
+            el.setAttribute(attrib, value)
+            }
+        }
+        })
+        givenObject.props.children.forEach(eachChild => {
+        el.appendChild(createDom(eachChild))
+        });
+        return el
+    }
+    }
+    document.querySelector("#root").appendChild(createDom(vDom))
+
+`
 
 fs.writeFileSync("script.js", output)

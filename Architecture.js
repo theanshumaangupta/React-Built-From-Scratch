@@ -12,11 +12,7 @@ function App() {
     </main>
   )
 }
-// myBabel (eq to babel) convert upper code into ---
-(main, {},
-  (div, {}, "Hello")
-  (div, {}, "Hello")
-)
+
 
 
 

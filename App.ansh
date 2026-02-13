@@ -1,0 +1,11 @@
+
+let a = function App() {
+    return (
+        <section>
+           Hello
+           <div class="text-blue">I am div</div>
+           <button style={{ "color" : "red", "font-size":"100px" }}>SUBMIT</button>
+        </section>
+    )
+}
+
