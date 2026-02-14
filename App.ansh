@@ -1,10 +1,12 @@
 
 let a = function App() {
+    let b = 6
     return (
-        <section>
+        <section id="ji" class="myclass" style={{}}>
            Hello
-           <div class="text-blue">I am div</div>
-           <button style={{ "color" : "red", "font-size":"100px" }}>SUBMIT</button>
+           <div class="text-blue">I am div, {b}, kiilk lkk </div>
+           <img src="/a.png" alt="image" style={{"width" : "200px"}} />
+           <button style={{ "color" : "red", "font-size":"50px" }}>SUBMIT</button>
         </section>
     )
 }

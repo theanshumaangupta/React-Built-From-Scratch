@@ -31,11 +31,12 @@ function parseJSX(input) {
             tag += input[i++]
         }
 
-        while (input[i] !== ">") {
+        while (!input.startsWith(`>`, i) && !input.startsWith(`/>`, i)) {
             wholeTag += input[i]
             i++
         }
-        i++ // >
+
+
         const children = []
         let attrib = {}
         let extractAttrib = wholeTag.match(/\b[a-zA-Z]+="[^"]*"/g)
@@ -51,7 +52,19 @@ function parseJSX(input) {
                 attrib[prop[0]] = prop[1].match(/"([^"]+)"/)?.[1]
             }
         })
-
+        if (input.startsWith(`>`, i)) {
+            i++ // >
+        }
+        else if (input.startsWith(`/>`, i)) {
+            i += 2 // for self closing tag '/>'
+            return {
+                type: tag,
+                props: {
+                    ...attrib,
+                    children: []
+                }
+            }
+        }
         while (!input.startsWith(`</${tag}>`, i)) {
             skipWs()
             if (input[i] === "<") {
@@ -78,7 +91,6 @@ function parseJSX(input) {
 }
 
 const tree = parseJSX(jsx)
-
 let myDom = JSON.stringify(tree, null, 2)
 
 let output = `

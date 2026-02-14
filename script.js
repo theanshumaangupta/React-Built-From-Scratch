@@ -2,6 +2,9 @@
     let vDom = {
   "type": "section",
   "props": {
+    "style": {},
+    "id": "ji",
+    "class": "myclass",
     "children": [
       "Hello",
       {
@@ -9,8 +12,19 @@
         "props": {
           "class": "text-blue",
           "children": [
-            "I am div"
+            "I am div, {b}, kiilk lkk"
           ]
+        }
+      },
+      {
+        "type": "img",
+        "props": {
+          "style": {
+            "width": "200px"
+          },
+          "src": "/a.png",
+          "alt": "image",
+          "children": []
         }
       },
       {
@@ -18,7 +32,7 @@
         "props": {
           "style": {
             "color": "red",
-            "font-size": "100px"
+            "font-size": "50px"
           },
           "children": [
             "SUBMIT"
