@@ -1,47 +1,12 @@
-
-    let vDom = {
-  "type": "section",
-  "props": {
-    "style": {},
-    "id": "ji",
-    "class": "myclass",
-    "children": [
-      "Hello",
-      {
-        "type": "div",
-        "props": {
-          "class": "text-blue",
-          "children": [
-            "I am div, {b}, kiilk lkk"
-          ]
-        }
-      },
-      {
-        "type": "img",
-        "props": {
-          "style": {
-            "width": "200px"
-          },
-          "src": "/a.png",
-          "alt": "image",
-          "children": []
-        }
-      },
-      {
-        "type": "button",
-        "props": {
-          "style": {
-            "color": "red",
-            "font-size": "50px"
-          },
-          "children": [
-            "SUBMIT"
-          ]
-        }
-      }
-    ]
-  }
+function a() {
+    let a = {"type":"section","props":{"children":[{"type":"div","props":{"children":[`GREATER`]}}]}}
+    let b = {"type":"section","props":{"children":[{"type":"div","props":{"children":[`LESSER`]}}]}}
+    let arr = [{"type":"div","props":{"children":[`arr1`]}},{"type":"div","props":{"children":[`arr2`]}}]
+    return (
+        {"type":"div","props":{"children":[`${2>3?a:b}`]}}
+    )
 }
+
     function createText(text) {
     let textDom = document.createTextNode(text)
     return textDom
@@ -72,5 +37,4 @@
         return el
     }
     }
-    document.querySelector("#root").appendChild(createDom(vDom))
-
+     document.querySelector("#root").appendChild(createDom(a()))

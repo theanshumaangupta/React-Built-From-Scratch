@@ -1,13 +1,8 @@
-
-let a = function App() {
-    let b = 6
+function a() {
+    let a = <section><div>GREATER</div></section>;
+    let b = <section><div>LESSER</div></section>;
+    let arr = [<div>arr1</div>;,<div>arr2</div>;]
     return (
-        <section id="ji" class="myclass" style={{}}>
-           Hello
-           <div class="text-blue">I am div, {b}, kiilk lkk </div>
-           <img src="/a.png" alt="image" style={{"width" : "200px"}} />
-           <button style={{ "color" : "red", "font-size":"50px" }}>SUBMIT</button>
-        </section>
+        <div>${2>3?a:b}</div>;
     )
 }
-

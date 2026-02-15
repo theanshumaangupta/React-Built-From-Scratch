@@ -3,11 +3,10 @@ import fs from "fs"
 const code = fs.readFileSync("App.ansh", "utf-8")
 
 // extract JSX inside return(...) with detail due to ()
-const jsx = code.match(/return\s*\(([\s\S]*?)\)/)[1]
-
+// const jsx = code.match(/return\s*\(([\s\S]*?)\)/)[1]
+fs.writeFileSync("script.js", "")
 function parseJSX(input) {
     let i = 0
-
     function skipWs() {
         while (/\s/.test(input[i])) i++
     }
@@ -89,12 +88,21 @@ function parseJSX(input) {
 
     return parseNode()
 }
-
-const tree = parseJSX(jsx)
-let myDom = JSON.stringify(tree, null, 2)
+for (let i = 0; i < code.length; ++i){
+    if(code[i] == "<"){
+        let end = code.indexOf(";", i);
+        let VDOM = JSON.stringify(parseJSX(code.slice(i, end))).replaceAll('["', '[`').replaceAll('"]', '`]');
+        fs.appendFileSync("script.js", VDOM);
+        i = end;
+    }
+    else{
+        fs.appendFileSync("script.js", code[i]);
+    }
+}
+// const tree = parseJSX(jsx)
+// let myDom = JSON.stringify(tree, null, 2)
 
 let output = `
-    let vDom = ${myDom}
     function createText(text) {
     let textDom = document.createTextNode(text)
     return textDom
@@ -125,8 +133,6 @@ let output = `
         return el
     }
     }
-    document.querySelector("#root").appendChild(createDom(vDom))
+     document.querySelector("#root").appendChild(createDom(a()))`
 
-`
-
-fs.writeFileSync("script.js", output)
+fs.appendFileSync("script.js",  output)
