@@ -1,8 +1,11 @@
 function a() {
+    let f = 7+7
     let a = <section><div>GREATER</div></section>;
     let b = <section><div>LESSER</div></section>;
-    let arr = [<div>arr1</div>;,<div>arr2</div>;]
+    let arr = [<div><div><input placeholder="hello"/></div></div>;,<div>${f}</div>;,<div>arr3</div>;]
     return (
-        <div>${2>3?a:b}</div>;
+        <div>${
+            arr
+            }</div>;
     )
 }

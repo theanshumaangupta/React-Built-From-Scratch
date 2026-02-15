@@ -1,0 +1,5 @@
+firstly parse every <></> into `...`
+
+then return the function 
+and then parseJsx the return value and create vDom 
+and then convert into realDom

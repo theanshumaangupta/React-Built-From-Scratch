@@ -2,13 +2,28 @@ import fs from "fs"
 
 const code = fs.readFileSync("App.ansh", "utf-8")
 
-// extract JSX inside return(...) with detail due to ()
-// const jsx = code.match(/return\s*\(([\s\S]*?)\)/)[1]
-fs.writeFileSync("script.js", "")
-function parseJSX(input) {
+fs.writeFileSync("test.js", "")
+let testWritten = ""
+let index = 0
+while (index < code.length) {
+    const char = code[index];
+    if (char == "<") {
+        let end = code.indexOf(";", index)
+        let segment = code.slice(index, end)
+        testWritten+=`\`${segment}\``
+        index = end
+        index+=1
+    }   
+    else{
+        testWritten+=char
+        index+=1
+    }
+}
+
+let c = `\nfunction parseJSX(input) {
     let i = 0
     function skipWs() {
-        while (/\s/.test(input[i])) i++
+        while (/\\s/.test(input[i])) i++
     }
 
     function parseText() {
@@ -30,7 +45,7 @@ function parseJSX(input) {
             tag += input[i++]
         }
 
-        while (!input.startsWith(`>`, i) && !input.startsWith(`/>`, i)) {
+        while (!input.startsWith(">", i) && !input.startsWith("/>", i)) {
             wholeTag += input[i]
             i++
         }
@@ -38,8 +53,9 @@ function parseJSX(input) {
 
         const children = []
         let attrib = {}
-        let extractAttrib = wholeTag.match(/\b[a-zA-Z]+="[^"]*"/g)
-        let extractStyle = wholeTag.match(/style=\{(\{[^}]*\})\}/)?.[1]
+        let extractAttrib = wholeTag.match(/\\b[a-zA-Z]+="[^"]*"/g)
+        console.log(extractAttrib);
+        let extractStyle = wholeTag.match(/style=\\{(\\{[^}]*\})\}/)?.[1]
         if (extractStyle) {
             attrib["style"] = JSON.parse(extractStyle)
         }
@@ -51,10 +67,10 @@ function parseJSX(input) {
                 attrib[prop[0]] = prop[1].match(/"([^"]+)"/)?.[1]
             }
         })
-        if (input.startsWith(`>`, i)) {
+        if (input.startsWith(">", i)) {
             i++ // >
         }
-        else if (input.startsWith(`/>`, i)) {
+        else if (input.startsWith("/>", i)) {
             i += 2 // for self closing tag '/>'
             return {
                 type: tag,
@@ -64,13 +80,13 @@ function parseJSX(input) {
                 }
             }
         }
-        while (!input.startsWith(`</${tag}>`, i)) {
+        while (!input.startsWith(\`</\${tag}>\`, i)) {
             skipWs()
             if (input[i] === "<") {
                 children.push(parseNode())
             } else {
                 const t = parseText()
-                if (t) children.push(t)
+                if (t && t !=",") children.push(t)
             }
             skipWs()
         }
@@ -87,22 +103,9 @@ function parseJSX(input) {
     }
 
     return parseNode()
-}
-for (let i = 0; i < code.length; ++i){
-    if(code[i] == "<"){
-        let end = code.indexOf(";", i);
-        let VDOM = JSON.stringify(parseJSX(code.slice(i, end))).replaceAll('["', '[`').replaceAll('"]', '`]');
-        fs.appendFileSync("script.js", VDOM);
-        i = end;
-    }
-    else{
-        fs.appendFileSync("script.js", code[i]);
-    }
-}
-// const tree = parseJSX(jsx)
-// let myDom = JSON.stringify(tree, null, 2)
+}`
 
-let output = `
+let output = `\n
     function createText(text) {
     let textDom = document.createTextNode(text)
     return textDom
@@ -132,7 +135,10 @@ let output = `
         });
         return el
     }
-    }
-     document.querySelector("#root").appendChild(createDom(a()))`
-
-fs.appendFileSync("script.js",  output)
+    }`
+testWritten+=c
+testWritten +=output
+testWritten += "document.querySelector(\"#root\").appendChild(createDom(parseJSX(a())))"
+testWritten += "\nconsole.log(createDom(parseJSX(a())))"
+// testWritten += "\nconsole.dir(parseJSX(a()), {depth: null})"
+fs.writeFileSync("script.js", testWritten)
