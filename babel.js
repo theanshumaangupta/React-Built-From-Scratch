@@ -1,87 +1,115 @@
 import fs from "fs"
+import path from "path"
 
 const code = fs.readFileSync("App.ansh", "utf-8")
 
 fs.writeFileSync("test.js", "")
 let testWritten = ""
-let index = 0
 
-let inSingle = false
-let inDouble = false
-let inBacktick = false
-function isJSXStart(code, i) {
-    if (code[i] !== "<") return false
+function resolveImports(code, basePath = ".") {
+    const importRegex = /^import\s+(\w+)\s+from\s+"([^"]+)"\s*$/gm
+    let matches = []
+    let match
+    let componentNames = [] 
 
-    let j = i + 1
-
-    if (code[j] === "=" || code[j] === "<" || code[j] === ">") return false
-    if (code[j] === "/") j++
-
-    if (!/[A-Za-z]/.test(code[j])) return false
-
-    while (/[A-Za-z]/.test(code[j])) j++
-
-    if (!/[\s/>]/.test(code[j])) return false
-
-    let quote = null
-
-    for (; j < code.length; j++) {
-        const c = code[j]
-
-        if (quote) {
-            if (c === quote) quote = null
-            continue
-        }
-
-        if (c === '"' || c === "'") {
-            quote = c
-            continue
-        }
-
-        if (c === ">") return true
-        if (c === ";" || c === "\n") return false
+    while ((match = importRegex.exec(code)) !== null) {
+        matches.push({ full: match[0], name: match[1], path: match[2] })
+        componentNames.push(match[1])
     }
 
-    return false
+    let injected = ""
+    for (const m of matches) {
+        let filePath = m.path
+        if (!filePath.endsWith(".ansh")) filePath += ".ansh"
+        const fullPath = path.join(basePath, filePath)
+        const fileCode = fs.readFileSync(fullPath, "utf-8")
+        const resolved = resolveImports(fileCode, path.dirname(fullPath))
+        injected += `{\n${resolved.code}\n}\n`    // for isolating the variables to eachother
+        componentNames.push(...resolved.componentNames)
+        code = code.replace(m.full, "")
+    }
+
+    return { code: injected + code, componentNames }
 }
+function stepOne(code) {
+    let collectingString = ""
+    let index = 0
+    let inSingle = false
+    let inDouble = false
+    let inBacktick = false
+    function isJSXStart(code, i) {
+        if (code[i] !== "<") return false
 
+        let j = i + 1
 
-while (index < code.length) {
-    const char = code[index];
-    if (char === "'" && !inDouble && !inBacktick) {
-        inSingle = !inSingle
-        testWritten += char
-        index++
-        continue
+        if (code[j] === "=" || code[j] === "<" || code[j] === ">") return false
+        if (code[j] === "/") j++
+
+        if (!/[A-Za-z]/.test(code[j])) return false
+
+        while (/[A-Za-z]/.test(code[j])) j++
+
+        if (!/[\s/>]/.test(code[j])) return false
+
+        let quote = null
+
+        for (; j < code.length; j++) {
+            const c = code[j]
+
+            if (quote) {
+                if (c === quote) quote = null
+                continue
+            }
+
+            if (c === '"' || c === "'") {
+                quote = c
+                continue
+            }
+
+            if (c === ">") return true
+            if (c === ";" || c === "\n") return false
+        }
+
+        return false
     }
+    while (index < code.length) {
+        const char = code[index];
+        if (char === "'" && !inDouble && !inBacktick) {
+            inSingle = !inSingle
+            collectingString += char
+            index++
+            continue
+        }
 
-    if (char === '"' && !inSingle && !inBacktick) {
-        inDouble = !inDouble
-        testWritten += char
-        index++
-        continue
-    }
+        if (char === '"' && !inSingle && !inBacktick) {
+            inDouble = !inDouble
+            collectingString += char
+            index++
+            continue
+        }
 
-    if (char === "`" && !inSingle && !inDouble) {
-        inBacktick = !inBacktick
-        testWritten += char
-        index++
-        continue
-    }
+        if (char === "`" && !inSingle && !inDouble) {
+            inBacktick = !inBacktick
+            collectingString += char
+            index++
+            continue
+        }
 
-    if (char == "<" && !inSingle && !inDouble && !inBacktick && isJSXStart(code, index)) {
-        let end = code.indexOf(";", index)
-        if (end === -1) throw new Error("Missing ; after JSX chunk")
-        let segment = code.slice(index, end)
-        testWritten += `\`${segment}\``
-        index = end
+        if (char == "<" && !inSingle && !inDouble && !inBacktick && isJSXStart(code, index)) {
+            let end = code.indexOf(";", index)
+            if (end === -1) throw new Error("Missing ; after JSX chunk")
+            let segment = code.slice(index, end)
+            collectingString += `\`${segment}\``
+            index = end
+            index += 1
+            continue
+        }
+        collectingString += char
         index += 1
-        continue
     }
-    testWritten += char
-    index += 1
+    return collectingString
 }
-console.log(testWritten);
+
 let parseJSXFunction = `\n
     function parseJSX(input) {
         let i = 0
@@ -175,6 +203,10 @@ let domFunctions = `\n
         if (typeof (givenObject) == "string") {
             return createText(givenObject)
         }
+        else if (__componentRegistry[givenObject.type]) {
+                const result = __componentRegistry[givenObject.type](givenObject.props)
+                return createDom(parseJSX(result))
+            }
         else {
             let el = document.createElement(givenObject.type)
             Object.entries(givenObject.props).forEach(([attrib, value]) => {
@@ -198,8 +230,19 @@ let domFunctions = `\n
         }
     }
 `
+const { code: bundled, componentNames } = resolveImports(code, ".")
+console.log(bundled);
+// Building A registry string that Gets injected into script js
+// this will help in working with custom componnents
+const registryCode = `
+const __componentRegistry = {
+    ${componentNames.map(name => `"${name}": ${name}`).join(",\n    ")}
+}
+`
+testWritten += stepOne(bundled)
+testWritten += registryCode       
 testWritten += parseJSXFunction
 testWritten += domFunctions
 testWritten += "document.querySelector(\"#root\").appendChild(createDom(parseJSX(App())))"
-// testWritten += "\nconsole.dir(parseJSX(a()), {depth: null})"
+
 fs.writeFileSync("script.js", testWritten)

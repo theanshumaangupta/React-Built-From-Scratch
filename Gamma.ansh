@@ -1,0 +1,5 @@
+function Gamma(){
+    return (
+        <div> Gamma </div>;
+    )
+}
