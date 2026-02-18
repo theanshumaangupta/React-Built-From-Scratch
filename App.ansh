@@ -1,4 +1,4 @@
-function a() {
+function App() {
     let f = 7+7
     let a = <section><div>GREATER</div></section>;
     let b = <section><div>LESSER</div></section>;

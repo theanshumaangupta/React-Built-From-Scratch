@@ -1,0 +1,10 @@
+1. <div attrib="" >                               "No space allowed"
+2. <a><b></b></a>;                                "semi colon is mandatory after chunk"
+3. <div> ${arr} </div>;                             "$ is mandatory after {}"
+4. <div class=""></div>                           "use class keyword instead of className and "
+5. <div style={{"color":"red"}}></div>            "use "" for representation of key in style 
+6. <MyComponent>                                   "starts with capital and digits not allowed"
+7. <></>                                            "not allowed"
+
+
+{} in wholetag
