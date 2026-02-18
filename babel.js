@@ -95,14 +95,41 @@ let inSingle = false
 let inDouble = false
 let inBacktick = false
 function isJSXStart(code, i) {
-    let j = i + 1
-    while (/\s/.test(code[j])) j++
+    if (code[i] !== "<") return false
 
-    if (!/[a-zA-Z]/.test(code[j])) return false
-    
-    let look = code.slice(j, j + 40)
-    return look.includes(">")
+    let j = i + 1
+
+    if (code[j] === "=" || code[j] === "<" || code[j] === ">") return false
+    if (code[j] === "/") j++
+
+    if (!/[A-Za-z]/.test(code[j])) return false
+
+    while (/[A-Za-z]/.test(code[j])) j++
+
+    if (!/[\s/>]/.test(code[j])) return false
+
+    let quote = null
+
+    for (; j < code.length; j++) {
+        const c = code[j]
+
+        if (quote) {
+            if (c === quote) quote = null
+            continue
+        }
+
+        if (c === '"' || c === "'") {
+            quote = c
+            continue
+        }
+
+        if (c === ">") return true
+        if (c === ";" || c === "\n") return false
+    }
+
+    return false
 }
+
 
 while (index < code.length) {
     const char = code[index];
