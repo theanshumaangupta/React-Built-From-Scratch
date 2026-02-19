@@ -1,5 +1,5 @@
 {
-let a = 10
+let a = 199
 function Alpha() {
     return(
         `<div>${a} </div>`
@@ -10,9 +10,10 @@ function Alpha() {
 
 }
 {
+let a = 300008
 function Gamma(){
     return (
-        `<div> Gamma </div>`
+        `<div> ${a} </div>`
     )
 }
 }
@@ -24,14 +25,14 @@ function App() {
     let b = `<section><div>LESSER</div></section>`
     let arr = [`<div><div><input placeholder="hello"/></div></div>`,`<div>${f}</div>`,`<div>arr3</div>`]
     return (
-        `<div><Alpha/>${arr}<Gamma/></div>`
+        `<div><Alpha/>${b}<Gamma/></div>`
     )
 }
-const __componentRegistry = {
-    "Alpha": Alpha,
+        const __componentRegistry = {
+            "Alpha": Alpha,
     "Gamma": Gamma
-}
-
+        }
+    
 
     function parseJSX(input) {
         let i = 0
@@ -115,7 +116,7 @@ const __componentRegistry = {
         }
         return parseNode()    
     }
-
+    
 
     function createText(text) {
         let textDom = document.createTextNode(text)
@@ -151,4 +152,4 @@ const __componentRegistry = {
         return el
         }
     }
-document.querySelector("#root").appendChild(createDom(parseJSX(App())))
+    document.querySelector("#root").appendChild(createDom(parseJSX(App())))

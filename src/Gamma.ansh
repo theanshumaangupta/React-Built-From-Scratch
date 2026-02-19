@@ -1,0 +1,6 @@
+let a = 300008
+function Gamma(){
+    return (
+        <div> ${a} </div>;
+    )
+}

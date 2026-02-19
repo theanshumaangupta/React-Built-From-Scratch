@@ -5,6 +5,6 @@
 5. <div style={{"color":"red"}}></div>            "use "" for representation of key in style 
 6. <MyComponent>                                   "starts with capital and digits not allowed"
 7. <></>                                            "not allowed"
-
-
+8.import Alpha from "./src/Alpha.ansh"              "while writing location of function you have to write it from main/global folder"
+9.You dont need to export custom components
 {} in wholetag
