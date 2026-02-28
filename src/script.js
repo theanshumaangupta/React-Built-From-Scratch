@@ -13,7 +13,7 @@ function Alpha() {
 let a = 300008
 function Gamma(){
     return (
-        `<div> ${a} </div>`
+        `<div> ${a} </div>`  
     )
 }
 }
@@ -24,8 +24,9 @@ function App() {
     let a = `<section><div>GREATER</div></section>`
     let b = `<section><div>LESSER</div></section>`
     let arr = [`<div><div><input placeholder="hello"/></div></div>`,`<div>${f}</div>`,`<div>arr3</div>`]
+    let c = "text-blue" 
     return (
-        `<div><Alpha/>${b}<Gamma/></div>`
+        `<div class=${c} style={{font-style:"italic", font-size:"50px"}}><Alpha/>${f} ${b}<Gamma/></div>`
     )
 }
         const __componentRegistry = {
@@ -36,6 +37,20 @@ function App() {
 
     function parseJSX(input) {
         let i = 0
+        // alternative of JSON.parse because it does not support {key:"value"} only supoort quoted keys
+        function parseStyle(str) {
+            // str = {color:"red"} or {"color":"red"}
+            let result = {}
+            // split by comma
+            str.split(",").forEach(pair => {
+                let [key, val] = pair.split(":")
+                key = key.trim().replace(/['"]/g, "")   
+                val = val.trim().replace(/['"]/g, "")   
+                if (key && val) result[key] = val
+            })
+            return result
+        }
+
         function skipWs() {
             while (/\s/.test(input[i])) i++
         }
@@ -48,17 +63,16 @@ function App() {
 
         function parseNode() {
             skipWs()
-
             if (input[i] !== "<") return parseText()
-
             i++ // <
             let tag = ""
             let wholeTag = ""
             skipWs()
             while (/[a-z]/i.test(input[i])) {
-                tag += input[i++]
+                tag += input[i]
+                i++
             }
-
+            
             while (!input.startsWith(">", i) && !input.startsWith("/>", i)) {
                 wholeTag += input[i]
                 i++
@@ -67,19 +81,28 @@ function App() {
 
             const children = []
             let attrib = {}
-            let extractAttrib = wholeTag.match(/\b[a-zA-Z]+="[^"]*"/g)
-            let extractStyle = wholeTag.match(/style=\{(\{[^}]*})}/)?.[1]
-            if (extractStyle) {
-                attrib["style"] = JSON.parse(extractStyle)
-            }
-            // 
-            extractAttrib && extractAttrib.forEach((a) => {
-                const prop = (a).split("=");
-                if (prop.length == 2) {
-                    // "theid" -> theid
-                    attrib[prop[0]] = prop[1].match(/"([^"]+)"/)?.[1]
+            if(!(wholeTag.trim() == "")){
+                let extractAttrib = wholeTag.match(/\b[a-zA-Z]+=(?:"[^"]*"|[^\s>"{}][^\s>]*)/g)
+                let extractStyle = wholeTag.match(/style=\{\{([^}]*)\}\}/)?.[1]
+                if (extractStyle) {
+                    attrib["style"] = parseStyle(extractStyle)
                 }
-            })
+                // 
+                extractAttrib && extractAttrib.forEach((a) => {
+                    const prop = (a).split("=");
+                    if (prop.length == 2) {
+                        key = prop[0]
+                        val = prop[1]
+                        if (val.startsWith('"')) {
+                            // quoted: "myclass" -> myclass
+                            attrib[key] = val.match(/"([^"]+)"/)?.[1]
+                        } else {
+                            // unquoted: myclass -> myclass
+                            attrib[key] = val
+                        }
+                    }
+                })
+            }
             if (input.startsWith(">", i)) {
                 i++ // >
             }
@@ -107,7 +130,7 @@ function App() {
             i += tag.length + 3 // </tag>
 
             return {
-                type: tag,
+                type: tag == "" ? 'span' : tag,
                 props: {
                     ...attrib,
                     children

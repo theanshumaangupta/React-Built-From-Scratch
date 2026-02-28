@@ -1,11 +1,14 @@
 import Alpha from "./src/Alpha.ansh"
 import Gamma from "./src/Gamma.ansh"
+
+
 function App() {
-    let f = 7+7
+    let f = <div>GREATER</div>
     let a = <section><div>GREATER</div></section>;
     let b = <section><div>LESSER</div></section>;
     let arr = [<div><div><input placeholder="hello"/></div></div>;,<div>${f}</div>;,<div>arr3</div>;]
+    let c = "text-blue" 
     return (
-        <div><Alpha/>${b}<Gamma/></div>;
+        <div class=${c} style={{font-style:"italic", font-size:"50px"}}><Alpha/>${f} ${b}<Gamma/></div>;
     )
 }
