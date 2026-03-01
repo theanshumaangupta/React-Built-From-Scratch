@@ -6,6 +6,7 @@ function compile() {
     // fs.writeFileSync("test.js", "")
     let testWritten = ""
 
+    // putiing the code from all imported files
     function resolveImports(code, basePath = ".") {
         const importRegex = /^import\s+(\w+)\s+from\s+"([^"]+)"\s*$/gm
         let matches = []
@@ -31,6 +32,8 @@ function compile() {
 
         return { code: injected + code, componentNames }
     }
+
+    // converting       <div> hello </div>   ->    `<div> hello </div>`
     function stepOne(code) {
         let collectingString = ""
         let index = 0
@@ -42,7 +45,7 @@ function compile() {
 
             let j = i + 1
             if (code[j] == ">") return true
-            if (code[j] === "=" || code[j] === "<" ) return false
+            if (code[j] === "=" || code[j] === "<") return false
             if (code[j] === "/") j++
 
             if (!/[A-Za-z]/.test(code[j])) return false
@@ -74,20 +77,20 @@ function compile() {
         }
         while (index < code.length) {
             const char = code[index];
+
+            // keep the quoted things as-it-is
             if (char === "'" && !inDouble && !inBacktick) {
                 inSingle = !inSingle
                 collectingString += char
                 index++
                 continue
             }
-
             if (char === '"' && !inSingle && !inBacktick) {
                 inDouble = !inDouble
                 collectingString += char
                 index++
                 continue
             }
-
             if (char === "`" && !inSingle && !inDouble) {
                 inBacktick = !inBacktick
                 collectingString += char
@@ -99,6 +102,14 @@ function compile() {
                 let end = code.indexOf(";", index)
                 if (end === -1) throw new Error("Missing ; after JSX chunk")
                 let segment = code.slice(index, end)
+
+                // AUTO-EXTRACT on* handlers
+                segment = segment.replace(/\bon(\w+)=\$\{([^}]+)\}/g, (_, event, expr) => {
+                    const key = `__h_${expr.trim()}`
+                    collectingString += `__handlers["${key}"] = ${expr.trim()},\n`
+                    return `on${event}="${key}"`
+                })
+
                 collectingString += `\`${segment}\``
                 index = end
                 index += 1
@@ -110,6 +121,14 @@ function compile() {
         return collectingString
     }
 
+    //  converting `<div attrib="hello"> hello </div>`      to 
+    // {
+    //     type: div,
+    //     props: {
+    //         attrib:"hello",
+    //         children: ['hello']
+    //     }
+    // }
     let parseJSXFunction = `\n
     function parseJSX(input) {
         let i = 0
@@ -216,6 +235,7 @@ function compile() {
         return parseNode()    
     }
     `
+    //from {type...: } to  converting actual dom in client side 
     let domFunctions = `\n
     function createText(text) {
         let textDom = document.createTextNode(text)
@@ -240,7 +260,11 @@ function compile() {
                             el.style[styleKey] = styleValue
                         })
                     }
-                    else {
+
+                    else if (attrib.startsWith("on")) {
+                        const eventName = attrib.slice(2)
+                        el.addEventListener(eventName, __handlers[value])
+                    } else {
                         el.setAttribute(attrib, value)
                     }
                 }
@@ -252,7 +276,9 @@ function compile() {
         }
     }
     `
+
     const { code: bundled, componentNames } = resolveImports(code, ".")
+
     // Building A registry string that Gets injected into script js
     // this will help in working with custom componnents
     const registryCode = `
@@ -260,13 +286,35 @@ function compile() {
             ${componentNames.map(name => `"${name}": ${name}`).join(",\n    ")}
         }
     `
-    console.log(bundled);
+
     testWritten += stepOne(bundled)
     testWritten += registryCode
     testWritten += parseJSXFunction
     testWritten += domFunctions
+    testWritten += `
+        let stateStore = []
+        let stateIndex = 0
+        let __handlers = {}
+        function Mystate(initial) {
+            const index = stateIndex++
+            if (stateStore[index] === undefined) {
+                stateStore[index] = initial
+            }
+            function setter(newVal) {
+                stateStore[index] = newVal
+                rerender()
+            }
+            return [stateStore[index], setter]
+        }
+        function rerender() {
+            stateIndex = 0
+            __handlers = {}
+            const root = document.querySelector("#root")
+            root.innerHTML = ""
+            root.appendChild(createDom(parseJSX(App())))
+        }
+        `
     testWritten += "document.querySelector(\"#root\").appendChild(createDom(parseJSX(App())))"
-
     fs.writeFileSync("src/script.js", testWritten)
 }
 compile()

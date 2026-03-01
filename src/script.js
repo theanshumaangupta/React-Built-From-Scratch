@@ -20,13 +20,18 @@ function Gamma(){
 
 
 function App() {
-    let f = 7+7
+    let f = `<div>GREATER</div>`
+    let [count, setCount] = Mystate(0)
+    
     let a = `<section><div>GREATER</div></section>`
     let b = `<section><div>LESSER</div></section>`
     let arr = [`<div><div><input placeholder="hello"/></div></div>`,`<div>${f}</div>`,`<div>arr3</div>`]
     let c = "text-blue" 
+    let inc = () => setCount(count+1)
+    let kk = "text-red"
     return (
-        `<div class=${c} style={{font-style:"italic", font-size:"50px"}}><Alpha/>${f} ${b}<Gamma/></div>`
+        __handlers["__h_inc"] = inc,
+`<div  style={{background:"gray", margin:"20px", padding: "10px"}} onclick="__h_inc">${count}</div>`
     )
 }
         const __componentRegistry = {
@@ -164,7 +169,11 @@ function App() {
                             el.style[styleKey] = styleValue
                         })
                     }
-                    else {
+
+                    else if (attrib.startsWith("on")) {
+                        const eventName = attrib.slice(2)
+                        el.addEventListener(eventName, __handlers[value])
+                    } else {
                         el.setAttribute(attrib, value)
                     }
                 }
@@ -175,4 +184,26 @@ function App() {
         return el
         }
     }
-    document.querySelector("#root").appendChild(createDom(parseJSX(App())))
+    
+        let stateStore = []
+        let stateIndex = 0
+        let __handlers = {}
+        function Mystate(initial) {
+            const index = stateIndex++
+            if (stateStore[index] === undefined) {
+                stateStore[index] = initial
+            }
+            function setter(newVal) {
+                stateStore[index] = newVal
+                rerender()
+            }
+            return [stateStore[index], setter]
+        }
+        function rerender() {
+            stateIndex = 0
+            __handlers = {}
+            const root = document.querySelector("#root")
+            root.innerHTML = ""
+            root.appendChild(createDom(parseJSX(App())))
+        }
+        document.querySelector("#root").appendChild(createDom(parseJSX(App())))

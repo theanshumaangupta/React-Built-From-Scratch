@@ -1,14 +1,17 @@
 import Alpha from "./src/Alpha.ansh"
 import Gamma from "./src/Gamma.ansh"
 
-
 function App() {
-    let f = <div>GREATER</div>
+    let f = <div>GREATER</div>;
+    let [count, setCount] = Mystate(0)
+    
     let a = <section><div>GREATER</div></section>;
     let b = <section><div>LESSER</div></section>;
     let arr = [<div><div><input placeholder="hello"/></div></div>;,<div>${f}</div>;,<div>arr3</div>;]
     let c = "text-blue" 
+    let inc = () => setCount(count+1)
+    let kk = "text-red"
     return (
-        <div class=${c} style={{font-style:"italic", font-size:"50px"}}><Alpha/>${f} ${b}<Gamma/></div>;
+        <div  style={{background:"gray", margin:"20px", padding: "10px"}} onclick=${inc}>${count}</div>;
     )
 }
