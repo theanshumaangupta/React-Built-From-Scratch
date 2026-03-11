@@ -1,10 +1,10 @@
-0. index.html babel.js and App.ansh should be in base folder side by side
-1. 
-2. <a><b></b></a>;                                "semi colon is mandatory after chunk"
-3. <div> ${arr} </div>;                             "$ is mandatory after {}"
-4. <div class=""></div>                             "use class keyword instead of className and "
-5
-6. <MyComponent>                                   "starts with capital and digits not allowed"
-7. 
-8.import Alpha from "./src/Alpha.ansh"              "while writing location of function you have to write it from main/global folder"
-9.You dont need to export custom components
+- index.html babel.js and App.ansh should be in base folder side by side
+- <a><b></b></a>;                                "semi colon is mandatory after chunk"
+- <div> ${arr} </div>;                             "$ is mandatory after {}"
+- <div class=""></div>                             "use class keyword instead of className and "
+- <MyComponent>                                   "starts with capital and digits not allowed"
+- import Alpha from "./src/Alpha.ansh"              "while writing location of function you have to write it from main/global folder"
+- You dont need to export custom components
+
+Next toWork
+-AddEventListeners

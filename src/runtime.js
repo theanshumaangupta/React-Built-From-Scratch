@@ -22,7 +22,8 @@ function Mystate(initial) {
     }
     function setter(newVal) {
         if (typeof newVal === "function") {
-            stateStore[index] = newVal(stateStore[index])  // pass current value in
+            //  newVal(stateStore[index])    is same as   (prev => prev + 1)(oldValue)    same as  function(oldValue)
+            stateStore[index] = newVal(stateStore[index])  
         } else {
             stateStore[index] = newVal
         }

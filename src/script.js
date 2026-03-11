@@ -27,17 +27,16 @@ function App() {
         const id = setInterval(() => {
             setCount(prev => prev + 1)
         }, 1000)
-
         return () => clearInterval(id)  // cleanup old interval on every rerender
     }, [count])
     
     let a = `<section><div>GREATER</div></section>`
     let b = `<section><div>LESSER</div></section>`
-    let arr = [`<div><div><input placeholder="hello"/></div></div>`,`<div>${f}</div>`,`<div>arr3</div>`]
+    let arr = [`<div><div><input placeholder="ello"/></div></div>`,`<div>${f}</div>`,`<div>arr3</div>`]
     let c = "text-blue" 
     let kk = "text-red"
     return (
-        `<div  style={{background:"gray", margin:"20px", padding: "10px"}} >${count}</div>`
+        `<div  style={{background:"gray", margin:"20px", padding: "10px"}} >${count} Hello mk</div>`
     )
 }
         const __componentRegistry = {

@@ -1,6 +1,6 @@
 import fs from "fs"
 import path from "path"
-function compile() {
+export function compile() {
     const code = fs.readFileSync("App.ansh", "utf-8")
 
     // fs.writeFileSync("test.js", "")
