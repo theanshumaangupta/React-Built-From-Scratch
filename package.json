@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "go": "node server.js && node babel.js"
+    "go": "node server.js && node mybabel.js"
   },
   "keywords": [],
   "author": "",
