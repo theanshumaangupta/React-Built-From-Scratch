@@ -2,7 +2,7 @@ import http from "http";
 import fs from "fs";
 import { WebSocketServer } from 'ws';
 import path from "path";
-import { compile } from "./babel.js";
+import { compile } from "./mybabel.js";
 const dirPath = "./";
 const wss = new WebSocketServer({ port: 8080 });
 
@@ -57,13 +57,12 @@ const clients = new Set()
 wss.on("connection", (socket) => {
     clients.add(socket);
     socket.on("close", () => clients.delete(socket));
-    console.log("Client connected");
 });
 
 // For every client connection and detecting file changes in source folder
 fs.watch("./src", (eventType, filename) => {
     if (!filename || eventType !== "change") return;
-    else if (![".html", ".css", ".js"].includes(path.extname(filename))) return;
+    else if (![".html", ".css", ".js", ".ansh"].includes(path.extname(filename))) return;
     for (const socket of clients) {
         const ext = path.extname(filename)
 
@@ -101,6 +100,21 @@ const server = http.createServer((req, res) => {
             else if (path.extname(urlObj.fileName) === ".js") {
                 res.end(fs.readFileSync(urlObj.fileName, 'utf-8'))
             }
+            else if (urlObj.fileName.startsWith("public/")) {
+                const ext = path.extname(urlObj.fileName)
+                const mimeTypes = {
+                    ".png": "image/png",
+                    ".jpg": "image/jpeg",
+                    ".jpeg": "image/jpeg",
+                    ".gif": "image/gif",
+                    ".svg": "image/svg+xml",
+                    ".webp": "image/webp"
+                }
+                const contentType = mimeTypes[ext] || "application/octet-stream"
+                res.writeHead(200, { "Content-Type": contentType })
+                res.end(fs.readFileSync(urlObj.fileName))
+            }
+
         } else {
             res.writeHead(404, { "Content-Type": "text/html" });
             res.end("<h1>404 File not Found</h1>");

@@ -1,8 +1,7 @@
-let a = 199
+import Gamma from "./Gamma.ansh"
 function Alpha() {
-    return(
-        <div>${a} </div>;
+
+    return (
+        <div> <Gamma/> </div>;
     )
 }
-
-

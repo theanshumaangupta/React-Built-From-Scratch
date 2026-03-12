@@ -3,8 +3,8 @@
 - <div> ${arr} </div>;                             "$ is mandatory after {}"
 - <div class=""></div>                             "use class keyword instead of className and "
 - <MyComponent>                                   "starts with capital and digits not allowed"
-- import Alpha from "./src/Alpha.ansh"              "while writing location of function you have to write it from main/global folder"
-- You dont need to export custom components
 
+- You dont need to export custom components
+-components (.ansh and .css) except(App.ansh) should place in src
 Next toWork
 -AddEventListeners
